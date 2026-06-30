@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciativas Anima :D</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+    <h1>Iniciativas Anima :D</h1>
+
+    <div class="panel">
+        <input id="nombre" placeholder="Nombre personaje">
+        <input id="ini" type="number" placeholder="Iniciativa base">
+        <button onclick="addPersonaje()">➕ Añadir</button>
+    </div>
+
+    <div id="lista"></div>
+
+    <div id="combatBtns">
+        <button class="combat ordenar" onclick="ordenar()">🎲 Ordenar iniciativa</button>
+
+        <button class="combat iniciar" onclick="iniciarCombate()">
+            ▶ Iniciar combate
+        </button>
+
+        <button class="combat siguiente" onclick="siguienteTurno()">
+            ➡ Siguiente turno
+        </button>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
