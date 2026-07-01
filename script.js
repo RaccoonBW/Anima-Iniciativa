@@ -3,8 +3,64 @@ let personajes = JSON.parse(localStorage.getItem("personajes")) || [];
 let modoCombate = false;
 let turnoActual = 0;
 
+/* 🧠 modo de orden visual */
+let modoOrden = "preparacion";
+
+const protagonistas = ["PLATA", "MARAVI", "TAKESHI", "MARTINA"];
+
 function save(){
     localStorage.setItem("personajes", JSON.stringify(personajes));
+}
+
+/* 📱 avanzar input + siguiente a 0 */
+function siguienteInput(actualId){
+
+    const inputs = Array.from(document.querySelectorAll("input[type='number']"));
+
+    const index = inputs.findIndex(i => i.id === actualId);
+
+    const current = inputs[index];
+    const next = inputs[index + 1];
+
+    current.value = parseInt(current.value) || 0;
+
+    if(next){
+        next.value = 0;
+        next.focus();
+        next.select();
+    } else {
+        document.activeElement.blur();
+    }
+}
+
+/* 🧠 ORDEN PREPARACIÓN (tu regla nueva) */
+function ordenarPreparacion(lista){
+
+    return [...lista].sort((a,b) => {
+
+        const A = a.nombre.toUpperCase();
+        const B = b.nombre.toUpperCase();
+
+        const rank = (name) => {
+
+            if(name === "PLATA") return 0;
+            if(name === "TAKESHI") return 1;
+            if(name === "MARAVI") return 2;
+            if(name === "MARTINA") return 3;
+
+            const numA = name.match(/\d+/);
+            if(numA) return 100 + parseInt(numA[0]);
+
+            return 1000;
+        };
+
+        return rank(A) - rank(B);
+    });
+}
+
+/* ⚔️ ORDEN COMBATE */
+function ordenarCombate(lista){
+    return [...lista].sort((a,b) => b.total - a.total);
 }
 
 function render(){
@@ -12,21 +68,79 @@ function render(){
     const lista = document.getElementById("lista");
     lista.innerHTML = "";
 
+    const ordenados = modoOrden === "combate"
+        ? ordenarCombate(personajes)
+        : ordenarPreparacion(personajes);
+
+    ordenados.forEach(p => p.warning = []);
+
+    for(let j = 0; j < ordenados.length; j++){
+        for(let i = 0; i < j; i++){
+
+            const gap = ordenados[i].total - ordenados[j].total;
+
+            if(gap >= 150){
+                ordenados[j].warning.push(ordenados[i].nombre);
+            }
+        }
+    }
+
+    personajes = ordenados;
+
     personajes.forEach((p, i) => {
 
         const activo = modoCombate && i === turnoActual ? "🔴" : "";
 
+        let nombreRaw = p.nombre.trim();
+
+        let color = "#ff9800";
+
+        if(nombreRaw.toUpperCase().startsWith("ALIADO ")){
+            color = "#2e7d32";
+            nombreRaw = nombreRaw.replace(/^[Aa]liado\s+/, "");
+        }
+        else if(protagonistas.includes(nombreRaw.toUpperCase())){
+            color = "#ffffff";
+        }
+
+        const warningText = p.warning.length > 0
+            ? `⚠ ${p.warning.join(", ")}`
+            : "";
+
         lista.innerHTML += `
         <div class="card">
-            <b>${activo} ${p.nombre}</b> — Base: ${p.ini}
+            <b style="color:${color}">
+                ${activo} ${nombreRaw}
+            </b>
+
+            — Base: ${p.ini}
 
             <br>
 
             🎲 Dado:
-            <input type="number" id="dado-${i}" value="${p.dado ?? ''}" placeholder="d100">
+            <input type="number"
+                id="dado-${i}"
+                value="${p.dado ?? 0}"
+                onkeydown="if(event.key==='Enter'){ event.preventDefault(); siguienteInput(this.id); }"
+            >
 
-            <div class="total">
-                Total: ${p.total ?? p.ini}
+            <div style="
+                display:flex;
+                align-items:center;
+                margin-top:8px;
+                font-size:18px;
+                font-weight:bold;
+                gap:10px;
+            ">
+                <div>
+                    Total: ${p.total ?? p.ini}
+                </div>
+
+                ${p.warning.length > 0 ? `
+                    <div style="color:#e53935;font-size:14px;font-weight:normal;">
+                        ${warningText}
+                    </div>
+                ` : ""}
             </div>
 
             <button class="delete" onclick="borrar(${i})">🗑️</button>
@@ -34,12 +148,16 @@ function render(){
         `;
     });
 
-    actualizarBotonCombate();
+    actualizarBotones();
 }
 
-function actualizarBotonCombate(){
+function actualizarBotones(){
 
     const btn = document.querySelector(".combat.iniciar");
+
+    btn.textContent = modoCombate
+        ? "Finalizar combate"
+        : "Iniciar combate";
 
     if(modoCombate){
         btn.classList.add("activo");
@@ -58,7 +176,7 @@ function addPersonaje(){
     personajes.push({
         nombre,
         ini,
-        dado: null,
+        dado: 0,
         total: ini
     });
 
@@ -75,6 +193,7 @@ function borrar(i){
     render();
 }
 
+/* 🎲 ordenar manual combate */
 function ordenar(){
 
     personajes.forEach((p, i) => {
@@ -86,12 +205,11 @@ function ordenar(){
         p.total = p.ini + p.dado;
     });
 
-    personajes.sort((a,b) => b.total - a.total);
-
-    save();
+    modoOrden = "combate";
     render();
 }
 
+/* ⚔️ toggle combate */
 function iniciarCombate(){
 
     if(personajes.length === 0) return;
@@ -99,7 +217,11 @@ function iniciarCombate(){
     modoCombate = !modoCombate;
 
     if(modoCombate){
+        modoOrden = "combate";
         turnoActual = 0;
+    } else {
+        /* 🔁 FIN COMBATE → vuelve a orden preparación */
+        modoOrden = "preparacion";
     }
 
     render();
@@ -114,9 +236,17 @@ function siguienteTurno(){
     if(turnoActual >= personajes.length){
         modoCombate = false;
         turnoActual = 0;
+        modoOrden = "preparacion";
     }
 
     render();
 }
+
+/* 📱 cerrar teclado */
+document.addEventListener("click", function(e){
+    if(e.target.tagName !== "INPUT"){
+        document.activeElement.blur();
+    }
+});
 
 render();
