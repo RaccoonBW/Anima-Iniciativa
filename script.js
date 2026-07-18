@@ -179,9 +179,14 @@ function actualizarBotones(){
 function addPersonaje(){
 
     const nombre = document.getElementById("nombre").value.trim();
-    const ini = parseInt(document.getElementById("ini").value);
 
-    if(!nombre || isNaN(ini)) return;
+    let ini = parseInt(document.getElementById("ini").value);
+
+    if(!nombre) return;
+
+    if(isNaN(ini)){
+        ini = 0;
+    }
 
     personajes.push({
         nombre,
