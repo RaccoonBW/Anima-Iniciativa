@@ -214,16 +214,36 @@ function iniciarCombate(){
 
     if(personajes.length === 0) return;
 
-    modoCombate = !modoCombate;
+    if(!modoCombate){
 
-    if(modoCombate){
+        // Leer los valores escritos en los dados
+        personajes.forEach((p, i) => {
+
+            const input = document.getElementById(`dado-${i}`);
+
+            if(input){
+                const dado = parseInt(input.value);
+
+                p.dado = isNaN(dado) ? 0 : dado;
+                p.total = p.ini + p.dado;
+            }
+
+        });
+
+        // Ordenar igual que hace el botón "Ordenar"
+        personajes.sort((a,b) => b.total - a.total);
+
         modoOrden = "combate";
+        modoCombate = true;
         turnoActual = 0;
-    } else {
-        /* 🔁 FIN COMBATE → vuelve a orden preparación */
+
+    }else{
+
+        modoCombate = false;
         modoOrden = "preparacion";
     }
 
+    save();
     render();
 }
 
