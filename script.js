@@ -33,28 +33,38 @@ function siguienteInput(actualId){
     }
 }
 
-/* 🧠 ORDEN PREPARACIÓN (tu regla nueva) */
+/* 🧠 ORDEN PREPARACIÓN */
 function ordenarPreparacion(lista){
 
     return [...lista].sort((a,b) => {
 
-        const A = a.nombre.toUpperCase();
-        const B = b.nombre.toUpperCase();
+        const A = a.nombre.trim().toUpperCase();
+        const B = b.nombre.trim().toUpperCase();
 
         const rank = (name) => {
 
-            if(name === "PLATA") return 0;
-            if(name === "TAKESHI") return 1;
+            // 1. Todos los nombres con números primero
+            if(/\d/.test(name)) return 0;
+
+            // 2. Después los protagonistas en el orden indicado
+            if(name === "PLATA") return 1;
             if(name === "MARAVI") return 2;
             if(name === "MARTINA") return 3;
+            if(name === "TAKESHI") return 4;
 
-            const numA = name.match(/\d+/);
-            if(numA) return 100 + parseInt(numA[0]);
-
-            return 1000;
+            // 3. Cualquier otro nombre al final
+            return 100;
         };
 
-        return rank(A) - rank(B);
+        const rA = rank(A);
+        const rB = rank(B);
+
+        // Si tienen la misma prioridad, ordenar alfabéticamente
+        if(rA === rB){
+            return A.localeCompare(B, "es");
+        }
+
+        return rA - rB;
     });
 }
 
