@@ -43,24 +43,24 @@ function ordenarPreparacion(lista){
 
         const rank = (name) => {
 
-            // 1. Todos los nombres con números primero
+            // 1. Cualquier nombre que contenga números
             if(/\d/.test(name)) return 0;
 
-            // 2. Después los protagonistas en el orden indicado
+            // 2. Protagonistas en el orden establecido
             if(name === "PLATA") return 1;
             if(name === "MARAVI") return 2;
             if(name === "MARTINA") return 3;
             if(name === "TAKESHI") return 4;
             if(name === "IMME") return 5;
 
-            // 3. Cualquier otro nombre al final
-            return 100;
+            // 3. Cualquier otro nombre sin números
+            return 6;
         };
 
         const rA = rank(A);
         const rB = rank(B);
 
-        // Si tienen la misma prioridad, ordenar alfabéticamente
+        // Si pertenecen al mismo grupo, ordenar alfabéticamente
         if(rA === rB){
             return A.localeCompare(B, "es");
         }
@@ -68,7 +68,6 @@ function ordenarPreparacion(lista){
         return rA - rB;
     });
 }
-
 /* ⚔️ ORDEN COMBATE */
 function ordenarCombate(lista){
     return [...lista].sort((a,b) => b.total - a.total);
