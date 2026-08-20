@@ -65,11 +65,12 @@ button{
 /* NÚMERO ANTERIOR DEL DADO */
 .ultimo-dado{
     position:absolute;
-    right:18px;
-    top:calc(50% - 38px);
-    font-size:11px;
-    color:#888;
+    right:10px;
+    top:calc(50% + 25px);
+    font-size:8px;
+    color:#666;
     font-weight:normal;
+    line-height:1;
 }
 
 .total{
