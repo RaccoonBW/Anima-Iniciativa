@@ -62,17 +62,6 @@ button{
     color:white;
 }
 
-/* NÚMERO ANTERIOR DEL DADO */
-.ultimo-dado{
-    position:absolute;
-    right:10px;
-    top:calc(50% + 25px);
-    font-size:8px;
-    color:#666;
-    font-weight:normal;
-    line-height:1;
-}
-
 .total{
     font-size:22px;
     font-weight:bold;
