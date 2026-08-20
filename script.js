@@ -22,18 +22,7 @@ function siguienteInput(actualId){
     const current = inputs[index];
     const next = inputs[index + 1];
 
-    const personajeIndex = parseInt(current.dataset.personaje);
-
-    if(!isNaN(personajeIndex)){
-        const valorActual = parseInt(current.value);
-
-        if(!isNaN(valorActual)){
-            personajes[personajeIndex].ultimoDado = personajes[personajeIndex].dado ?? 0;
-            personajes[personajeIndex].dado = valorActual;
-            personajes[personajeIndex].total =
-                personajes[personajeIndex].ini + valorActual;
-        }
-    }
+    current.value = parseInt(current.value) || 0;
 
     if(next){
         next.value = 0;
@@ -42,9 +31,6 @@ function siguienteInput(actualId){
     } else {
         document.activeElement.blur();
     }
-
-    save();
-    render();
 }
 
 /* 🧠 ORDEN PREPARACIÓN */
@@ -145,7 +131,6 @@ function render(){
             🎲 Dado:
             <input type="number"
                 id="dado-${i}"
-                data-personaje="${i}"
                 value="${p.dado ?? 0}"
                 onkeydown="if(event.key==='Enter'){ event.preventDefault(); siguienteInput(this.id); }"
             >
@@ -169,46 +154,12 @@ function render(){
                 ` : ""}
             </div>
 
-            ${p.ultimoDado !== undefined && p.ultimoDado !== null ? `
-                <div class="ultimo-dado">
-                    ${p.ultimoDado}
-                </div>
-            ` : ""}
-
             <button class="delete" onclick="borrar(${i})">🗑️</button>
         </div>
         `;
     });
 
     actualizarBotones();
-
-    /* Detectar cambios manuales en los dados */
-    document.querySelectorAll(".card input[type='number']").forEach(input => {
-
-        input.addEventListener("change", function(){
-
-            const index = parseInt(this.dataset.personaje);
-
-            if(isNaN(index)) return;
-
-            const valorNuevo = parseInt(this.value);
-
-            if(isNaN(valorNuevo)) return;
-
-            const valorAnterior = personajes[index].dado ?? 0;
-
-            if(valorNuevo !== valorAnterior){
-                personajes[index].ultimoDado = valorAnterior;
-            }
-
-            personajes[index].dado = valorNuevo;
-            personajes[index].total =
-                personajes[index].ini + valorNuevo;
-
-            save();
-            render();
-        });
-    });
 }
 
 function actualizarBotones(){
@@ -266,18 +217,11 @@ function ordenar(){
         const input = document.getElementById(`dado-${i}`);
         const dado = parseInt(input.value);
 
-        if(!isNaN(dado)){
-            if(dado !== (p.dado ?? 0)){
-                p.ultimoDado = p.dado ?? 0;
-            }
-
-            p.dado = dado;
-            p.total = p.ini + dado;
-        }
+        p.dado = isNaN(dado) ? 0 : dado;
+        p.total = p.ini + p.dado;
     });
 
     modoOrden = "combate";
-    save();
     render();
 }
 
@@ -296,15 +240,8 @@ function iniciarCombate(){
             if(input){
                 const dado = parseInt(input.value);
 
-                if(!isNaN(dado)){
-
-                    if(dado !== (p.dado ?? 0)){
-                        p.ultimoDado = p.dado ?? 0;
-                    }
-
-                    p.dado = dado;
-                    p.total = p.ini + dado;
-                }
+                p.dado = isNaN(dado) ? 0 : dado;
+                p.total = p.ini + p.dado;
             }
 
         });
