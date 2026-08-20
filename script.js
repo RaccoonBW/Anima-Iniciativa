@@ -6,7 +6,7 @@ let turnoActual = 0;
 /* 🧠 modo de orden visual */
 let modoOrden = "preparacion";
 
-const protagonistas = ["PLATA", "MARAVI", "TAKESHI", "MARTINA"];
+const protagonistas = ["PLATA", "MARAVI", "TAKESHI", "MARTINA", "IMME"];
 
 function save(){
     localStorage.setItem("personajes", JSON.stringify(personajes));
@@ -51,6 +51,7 @@ function ordenarPreparacion(lista){
             if(name === "MARAVI") return 2;
             if(name === "MARTINA") return 3;
             if(name === "TAKESHI") return 4;
+            if(name === "IMME") return 5;
 
             // 3. Cualquier otro nombre al final
             return 100;
